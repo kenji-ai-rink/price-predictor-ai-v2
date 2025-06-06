@@ -1,9 +1,21 @@
+import os
+import pandas as pd
+from sklearn.linear_model import LinearRegression
 import pickle
 from flask import Flask, request, render_template
 
-# モデル読み込み
-with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
+# モデルファイルが存在しない場合は新規学習
+if not os.path.exists("model.pkl"):
+    df = pd.read_csv("data.csv")
+    X = df[['面積', '築年数']]
+    y = df['価格']
+    model = LinearRegression()
+    model.fit(X, y)
+    with open("model.pkl", "wb") as f:
+        pickle.dump(model, f)
+else:
+    with open("model.pkl", "rb") as f:
+        model = pickle.load(f)
 
 app = Flask(__name__)
 
